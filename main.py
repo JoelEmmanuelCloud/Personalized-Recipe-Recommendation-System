@@ -2,21 +2,10 @@ import boto3
 import json
 import os
 from dotenv import load_dotenv
-from pydantic import ValidationError 
-from prompts import create_prompt, create_safety_mechanisms, InputData
+from prompts import create_prompt, create_safety_mechanisms, validate_input
 
 # Load environment variables
 load_dotenv()
-
-# Decorator for input validation
-def validate_input(func):
-    def wrapper(assistant, ingredients, cuisine):
-        try:
-            InputData.validate(ingredients, cuisine)
-        except ValidationError as e:
-            return "Invalid input. Please provide valid ingredients and cuisine."
-        return func(assistant, ingredients, cuisine)
-    return wrapper
 
 class RecipeAssistant:
     def __init__(self, model_id='anthropic.claude-v2'):
@@ -30,8 +19,10 @@ class RecipeAssistant:
         self.model_id = model_id
         self.context = "You are a culinary assistant designed to provide recipe suggestions."
 
-    @validate_input
     def invoke_model(self, ingredients, cuisine):
+        if not validate_input(ingredients, cuisine):
+            return "Please focus on ingredients and cuisines. What can I help you with today?"
+
         user_prompt = create_prompt(ingredients, cuisine)
         system_context = f"{self.context}. Safety guidance: {create_safety_mechanisms()['guidance']}"
 
