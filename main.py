@@ -16,6 +16,7 @@ class RecipeAssistant:
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
             aws_session_token=os.getenv("AWS_SESSION_TOKEN")
         )
+        
         self.model_id = model_id
         self.context = "You are a culinary assistant designed to provide recipe suggestions."
 
